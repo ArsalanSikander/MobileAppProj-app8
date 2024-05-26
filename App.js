@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
 import firestore, { setDoc } from '@react-native-firebase/firestore';
-import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ScrollView, Modal, StatusBar } from 'react-native';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -35,13 +35,22 @@ const AddStdScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ backgroundColor: "pink", width: '90%', height: '90%' }}>
-                <InputPlace labelText="ThisIsSomeField" phForTi="the placeholder" />
+        <ScrollView >
+            <View style={{ backgroundColor: "pink", margin: 5, paddingBottom: 30 }}>
                 <InputPlace labelText='Registration No.' phForTi="eg. FA/SP00-BCS-000" />
-                <InputPlace labelText={"Registration Date"} />
+                <InputPlace labelText={"Registration Date"} phForTi={"add Date picker"} />
+                <InputPlace labelText={"Name"} phForTi={"student's name"} />
+                <InputPlace labelText={"Gender"} phForTi={'add binary picker here?'} />
+                <InputPlace labelText={"Father's Name"} phForTi={"full name"} />
+                <InputPlace labelText={"Caste"} phForTi={"any caste"} />
+                <InputPlace labelText={"Occupation"} phForTi={'fathers current workplace'} />
+                <InputPlace labelText={"Residence"} phForTi={'in any format'} />
+                <InputPlace labelText={'Current Class'} phForTi={'picker'} />
+                <InputPlace labelText={'Email'} phForTi={'student@gmail.com'} />
+                <InputPlace labelText={'Password'} phForTi={'set password'} />
+                <InputPlace labelText={'Remarks'} phForTi={'optional'} />
             </View>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -301,6 +310,7 @@ const App = () => {
 
     return (
         <NavigationContainer>
+            <StatusBar />
             <Stack.Navigator initialRouteName="Admin Login" >
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Add Student Account" component={AddStdScreen} options={{ headerTitle: "Create a new Student Account" }} />
