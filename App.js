@@ -8,6 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
 
+
 const HomeScreen = ({ navigation }) => {
 
     function signOut() {
@@ -284,18 +285,18 @@ const AdmLogin = ({ navigation }) => {
     return (
         <View>
             <View style={styleSheet.inpBox}>
-                <Text>Email Name</Text>
-                <TextInput placeholder="Email here" style={styleSheet.inp} onChangeText={(newEmail) => { return setEmail(newEmail) }} />
+                <Text style={{color: 'black', paddingLeft:20}}>Email</Text>
+                <TextInput placeholder="Email address" style={styleSheet.inp} onChangeText={(newEmail) => { return setEmail(newEmail) }} />
             </View>
             <View style={styleSheet.inpBox}>
-                <Text>Password</Text>
-                <TextInput placeholder="Password here" style={styleSheet.inp} onChangeText={(newP) => { return setPass(newP) }} />
+                <Text style={{color: 'black', paddingLeft:20}}>Password</Text>
+                <TextInput placeholder="Password" style={styleSheet.inp} onChangeText={(newP) => { return setPass(newP) }} />
+            </View >
+            <View style={{width:80, height:40, alignSelf:'flex-end', paddingRight:13}}>
+                <Button title="Sign In" onPress={handleLogin}/>
             </View>
             <View>
-                <Button title="Sign In" onPress={handleLogin} />
-            </View>
-            <View>
-                <Text>Email is admin@gmail.com and Pass is 123456789</Text>
+                <Text style={{color: 'black'}}>Email is admin@gmail.com and Pass is 123456789</Text>
             </View>
 
             <View>
@@ -325,14 +326,18 @@ const App = () => {
 
 const styleSheet = StyleSheet.create({
     inpBox: {
-        justifyContent: 'space-around', flexDirection: 'row', padding: 10
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        padding: 10,
+        backgroundColor: 'whitesmoke',
     },
     inp: {
         height: 23,
         width: 200,
-        borderColor: "blue",
-        borderWidth: 2,
-        padding: 3
+        borderRadius: 50,
+        padding: 3,
+        backgroundColor: 'lightgray',
+        color: 'black'
     }
 
 })
