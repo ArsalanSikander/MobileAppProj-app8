@@ -4,6 +4,7 @@ import firestore, { setDoc } from '@react-native-firebase/firestore';
 import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ScrollView, Modal, StatusBar } from 'react-native';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 
 const Stack = createNativeStackNavigator();
@@ -11,26 +12,73 @@ const Stack = createNativeStackNavigator();
 
 const HomeScreen = ({ navigation }) => {
 
+    const OptionBtns = ({ textInside, whatToDoOnPress }) => {
+        return (
+            <TouchableOpacity style={{ backgroundColor: '#0077b6', margin: 20, marginBottom: 0, padding: 20, borderRadius: 20, width: 300, justifyContent: 'center', alignItems: 'center' }} onPress={whatToDoOnPress}>
+                <Text style={{ color: 'white', fontSize: 20 }}>
+                    {textInside}
+                </Text>
+            </TouchableOpacity>
+        )
+    }
+
     function signOut() {
-        return auth().signOut().then(() => { return navigation.navigate('Admin Login') })
+        return auth().signOut().then(() => { return navigation.navigate('Choose Login') })
     }
 
     return (
-        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-            <Text>This is some text lol</Text>
-            <Button title="Sign out" onPress={signOut} />
-            <Button title="Go to add data screen" onPress={() => navigation.navigate('Add Data')} />
+        <View style={{ margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20 }}>
+            <Text style={{ fontSize: 20, color: 'black' }}>What would you like to do?</Text>
+            <OptionBtns textInside={"Create a Student Account"} whatToDoOnPress={() => navigation.navigate('Add Student')} />
+            <OptionBtns textInside={"Manage Students"} whatToDoOnPress={() => navigation.navigate('Update Data')} />
+            <OptionBtns textInside={"View Reports"} whatToDoOnPress={() => { }} />
+            <OptionBtns textInside={"Download Reports"} whatToDoOnPress={() => { }} />
+            <OptionBtns textInside={"Manage Timetable"} whatToDoOnPress={() => { }} />
+            <OptionBtns textInside={"Manage Syllabus"} whatToDoOnPress={() => { }} />
+            {/* <Button title="Go to add data screen" onPress={() => navigation.navigate('Add Data')} /> */}
+            <OptionBtns textInside={"Logout"} whatToDoOnPress={signOut} />
+            {/* <Button title="Sign out" onPress={signOut} /> */}
+        </View>
+    )
+}
+
+const Logins = ({ navigation }) => {
+
+    const CustomBtn = ({ textInside, descText, whatToDoOnPress }) => {
+        return (
+            <TouchableOpacity style={styleSheet.userLoginChooseBtn} onPress={whatToDoOnPress}>
+                <Text style={{ color: 'white', fontSize: 21 }}>
+                    {textInside}
+                </Text>
+                <Text style={{ color: 'white', fontSize: 15 }}>
+                    {descText}
+                </Text>
+            </TouchableOpacity >
+        )
+    }
+
+    return (
+        <View style={{ backgroundColor: 'lightgray', height: '100%' }}>
+            <View style={{ backgroundColor: 'white', margin: 20, marginTop: 40, padding: 15, borderRadius: 20, borderWidth: 0 }} >
+                <Text style={{ fontSize: 22, color: '#03045e', fontWeight: 'bold', padding: 10, paddingTop: 18, paddingBottom: 17, alignSelf: 'center' }}>Choose what user to Login as</Text>
+                <Text style={{ fontSize: 20, color: '#03045e', marginLeft: 15, paddingTop: 10, paddingBottom: 10 }} >I am a(n) ...</Text>
+                <CustomBtn textInside={"Admin"} descText={"An admin is responsible for creating  student accounts, managing their fee status, and viewing student reports!"} whatToDoOnPress={() => { return navigation.navigate('Admin Login') }} />
+                <CustomBtn textInside={"Teacher"} descText={"A teacher is responsible for managing the class assigned to them, performing activities such as uploading and updating their marks"} whatToDoOnPress={() => { }} />
+                <CustomBtn textInside={"Student"} descText={"A student is able to view the marks of their respective subjects, including their current and previous grades. A student can also see their fee status and their timetable."} whatToDoOnPress={() => { }} />
+            </View>
         </View>
     )
 }
 
 const AddStdScreen = ({ navigation }) => {
 
-    const InputPlace = ({ labelText, phForTi }) => {
+    const [theDate, setTheDate] = useState(new Date());
+
+    const InputPlace = ({ labelText, phForTi, texVis = true, datePicVis = false, pickerVis = false }) => {
         return (
             <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomColor: 'gray', borderBottomWidth: 1, marginLeft: 20, marginRight: 20, marginTop: 5 }}>
                 <Text style={{ paddingRight: 10 }}>{labelText}</Text>
-                <TextInput placeholder={phForTi} />
+                {texVis && <TextInput placeholder={phForTi} />}
             </View>
         )
     }
@@ -39,7 +87,7 @@ const AddStdScreen = ({ navigation }) => {
         <ScrollView >
             <View style={{ backgroundColor: "pink", margin: 5, paddingBottom: 30 }}>
                 <InputPlace labelText='Registration No.' phForTi="eg. FA/SP00-BCS-000" />
-                <InputPlace labelText={"Registration Date"} phForTi={"add Date picker"} />
+                <InputPlace labelText={"Registration Date"} texVis={false} datePicVis={true} />
                 <InputPlace labelText={"Name"} phForTi={"student's name"} />
                 <InputPlace labelText={"Gender"} phForTi={'add binary picker here?'} />
                 <InputPlace labelText={"Father's Name"} phForTi={"full name"} />
@@ -90,14 +138,11 @@ const ChangeScreen = ({ navigation }) => {
         <View>
             <Text>{route.params.id}</Text>
             <Text>{route.params.name}</Text>
-
             <Button title="consoleLog the data" onPress={getFields} />
-
             <View>
                 <View>
                     <Text>Name={name}</Text>
                     <TextInput value={name} placeholder={route.params.name} style={{ borderWidth: 2, borderColor: "red" }} onChangeText={(newT) => { setName(newT) }} />
-
                 </View>
                 <View>
                     <Button title="Save Updates" onPress={updValuesOfDoc} />
@@ -114,7 +159,9 @@ const UpdateDataScreen = ({ navigation }) => {
     const [data, setData] = useState('');
     const ref = firestore().collection('exampleCollection');
     const [docArr, setDocArr] = useState([]);
-    getAllDocs(); //load documents present
+    useEffect(() => {
+        getAllDocs();
+    }, []);
 
 
     function docSchema(id, personName) {
@@ -127,7 +174,7 @@ const UpdateDataScreen = ({ navigation }) => {
             console.log("The document was deleted!");
         })
 
-        getAllDocs();
+        // getAllDocs();
     }
 
     async function getAllDocs() {
@@ -154,17 +201,15 @@ const UpdateDataScreen = ({ navigation }) => {
 
     return (
         <View>
-            <Text style={{ fontSize: 30 }}>{route.params.message}</Text>
-            <Button title="updateTheRead" onPress={getAllDocs} />
+            {/* <Button title="updateTheRead" onPress={getAllDocs} /> */}
             <ScrollView>
                 {
                     docArr.map((doc) => {
                         return (
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderWidth: 2, borderRadius: 20, borderColor: 'lightblue', margin: 10, marginLeft: 20, padding: 30 }}>
-                                <Text key={doc.id} style={{ fontSize: 20 }}>
+                            <View key={doc.id} style={{ flexDirection: 'row', justifyContent: 'space-between', borderWidth: 2, borderRadius: 20, borderColor: 'lightblue', margin: 10, marginLeft: 20, padding: 30 }}>
+                                <Text style={{ fontSize: 20, width: 160, height: 30 }}>
                                     {doc.personName}
                                 </Text>
-                                {/* <Text>{doc.id}</Text> */}
                                 <View style={{ flexDirection: 'row' }}>
                                     <Button title='Update' onPress={() => navigation.navigate('Change', { name: doc.personName, id: doc.id })} />
                                     <Button title='Delete' onPress={() => deleteDoc(doc.id)} />
@@ -285,24 +330,19 @@ const AdmLogin = ({ navigation }) => {
     return (
         <View>
             <View style={styleSheet.inpBox}>
-                <Text style={{color: 'black', paddingLeft:20}}>Email</Text>
+                <Text style={{ color: 'black', paddingLeft: 20 }}>Email</Text>
                 <TextInput placeholder="Email address" style={styleSheet.inp} onChangeText={(newEmail) => { return setEmail(newEmail) }} />
             </View>
             <View style={styleSheet.inpBox}>
-                <Text style={{color: 'black', paddingLeft:20}}>Password</Text>
+                <Text style={{ color: 'black', paddingLeft: 20 }}>Password</Text>
                 <TextInput placeholder="Password" style={styleSheet.inp} onChangeText={(newP) => { return setPass(newP) }} />
             </View >
-            <View style={{width:80, height:40, alignSelf:'flex-end', paddingRight:13}}>
-                <Button title="Sign In" onPress={handleLogin}/>
+            <View style={{ width: 80, height: 40, alignSelf: 'flex-end', paddingRight: 13 }}>
+                <Button title="Sign In" onPress={handleLogin} />
             </View>
             <View>
-                <Text style={{color: 'black'}}>Email is admin@gmail.com and Pass is 123456789</Text>
+                <Text style={{ color: 'black' }}>Email is admin@gmail.com and Pass is 123456789</Text>
             </View>
-
-            <View>
-                <Button title='Update Data Screen' onPress={() => navigation.navigate('Update Data')} />
-            </View>
-
         </View>
     )
 }
@@ -312,10 +352,11 @@ const App = () => {
     return (
         <NavigationContainer>
             <StatusBar />
-            <Stack.Navigator initialRouteName="Admin Login" >
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Add Student Account" component={AddStdScreen} options={{ headerTitle: "Create a new Student Account" }} />
-                <Stack.Screen name="Admin Login" component={AdmLogin} />
+            <Stack.Navigator initialRouteName="Choose Login" >
+                <Stack.Screen name='Choose Login' component={Logins} options={{ headerTitle: 'School Management App' }} />
+                <Stack.Screen name='Admin Login' component={AdmLogin} />
+                <Stack.Screen name="Home" component={HomeScreen} options={{ headerTitle: 'Welcome to Admin Homepage!' }} />
+                <Stack.Screen name='Add Student' component={AddStdScreen} />
                 <Stack.Screen name="Add Data" component={AddDataScreen} />
                 <Stack.Screen name="Update Data" component={UpdateDataScreen} />
                 <Stack.Screen name="Change" component={ChangeScreen} />
@@ -338,6 +379,16 @@ const styleSheet = StyleSheet.create({
         padding: 3,
         backgroundColor: 'lightgray',
         color: 'black'
+    },
+    userLoginChooseBtn: {
+        padding: 30,
+        paddingTop: 17,
+        margin: 5,
+        borderRadius: 20,
+        backgroundColor: '#0077b6'
+    },
+    whiteText: {
+        color: 'white',
     }
 
 })

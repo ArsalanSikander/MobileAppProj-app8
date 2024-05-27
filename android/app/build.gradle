@@ -114,6 +114,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // this is new cuz of datetimepicker too
+    //implementation project(':@react-native-community_datetimepicker')
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
