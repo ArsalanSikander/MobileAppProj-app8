@@ -1,14 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
+import { utils } from '@react-native-firebase/app';
+// import storage from '@react-native-firebase/storage';
 import firestore, { setDoc } from '@react-native-firebase/firestore';
-import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ScrollView, Modal, StatusBar } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ScrollView, Modal, StatusBar, Image } from 'react-native';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import DateTimePicker from '@react-native-community/datetimepicker';
-
+import { launchImageLibrary as _launchImageLibrary } from 'react-native-image-picker';
+let launchImageLibrary = _launchImageLibrary;
 
 const Stack = createNativeStackNavigator();
 
+
+const ManageTimetable = () => {
+
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const openImagePicker = () => {
+        const options = {
+            mediaType: 'photo',
+            includeBase64: false,
+            maxHeight: 5000,
+            maxWidth: 5000,
+        };
+
+        launchImageLibrary(options, (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('Image picker error: ', response.error);
+            } else {
+                let imageUri = response.uri || response.assets?.[0]?.uri;
+                setSelectedImage(imageUri);
+                console.log("Something happened: ", selectedImage);
+            }
+        });
+    };
+
+    return (
+        <View style={{ backgroundColor: 'lightgray', width: '100%', height: '100%', }}>
+            <View style={{ backgroundColor: 'white', padding: 30, borderRadius: 20, margin: 20 }}>
+                <TouchableOpacity onPress={openImagePicker}>
+                    <Text style={{ color: 'black' }}>
+                        Upload a Timetable
+                    </Text>
+                </TouchableOpacity>
+            </View>
+            <View style={{ backgroundColor: 'lightgray' }}>
+                {selectedImage && (
+                    <Image
+                        source={{ uri: selectedImage }}
+                        style={{ height: 100, width: 100, backgroundColor: 'white' }}
+                        resizeMode='contain'
+                    />
+                )}
+            </View>
+        </View>
+    )
+}
 
 const HomeScreen = ({ navigation }) => {
 
@@ -27,17 +76,17 @@ const HomeScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={{ margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20 }}>
-            <Text style={{ fontSize: 20, color: 'black' }}>What would you like to do?</Text>
-            <OptionBtns textInside={"Create a Student Account"} whatToDoOnPress={() => navigation.navigate('Add Student')} />
-            <OptionBtns textInside={"Manage Students"} whatToDoOnPress={() => navigation.navigate('Update Data')} />
-            <OptionBtns textInside={"View Reports"} whatToDoOnPress={() => { }} />
-            <OptionBtns textInside={"Download Reports"} whatToDoOnPress={() => { }} />
-            <OptionBtns textInside={"Manage Timetable"} whatToDoOnPress={() => { }} />
-            <OptionBtns textInside={"Manage Syllabus"} whatToDoOnPress={() => { }} />
-            {/* <Button title="Go to add data screen" onPress={() => navigation.navigate('Add Data')} /> */}
-            <OptionBtns textInside={"Logout"} whatToDoOnPress={signOut} />
-            {/* <Button title="Sign out" onPress={signOut} /> */}
+        <View style={{ backgroundColor: 'lightgray' }}>
+            <View style={{ margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20 }}>
+                <Text style={{ fontSize: 20, color: 'black' }}>What would you like to do?</Text>
+                <OptionBtns textInside={"Create a Student Account"} whatToDoOnPress={() => navigation.navigate('Add Student')} />
+                <OptionBtns textInside={"Manage Students"} whatToDoOnPress={() => navigation.navigate('Update Data')} />
+                <OptionBtns textInside={"View Reports"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"Download Reports"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"Manage Timetable"} whatToDoOnPress={() => { navigation.navigate('Manage Timetable') }} />
+                <OptionBtns textInside={"Manage Syllabus"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"Logout"} whatToDoOnPress={signOut} />
+            </View>
         </View>
     )
 }
@@ -58,7 +107,7 @@ const Logins = ({ navigation }) => {
     }
 
     return (
-        <View style={{ backgroundColor: 'lightgray', height: '100%' }}>
+        <ScrollView style={{ backgroundColor: 'lightgray', height: '100%' }}>
             <View style={{ backgroundColor: 'white', margin: 20, marginTop: 40, padding: 15, borderRadius: 20, borderWidth: 0 }} >
                 <Text style={{ fontSize: 22, color: '#03045e', fontWeight: 'bold', padding: 10, paddingTop: 18, paddingBottom: 17, alignSelf: 'center' }}>Choose what user to Login as</Text>
                 <Text style={{ fontSize: 20, color: '#03045e', marginLeft: 15, paddingTop: 10, paddingBottom: 10 }} >I am a(n) ...</Text>
@@ -66,7 +115,7 @@ const Logins = ({ navigation }) => {
                 <CustomBtn textInside={"Teacher"} descText={"A teacher is responsible for managing the class assigned to them, performing activities such as uploading and updating their marks"} whatToDoOnPress={() => { }} />
                 <CustomBtn textInside={"Student"} descText={"A student is able to view the marks of their respective subjects, including their current and previous grades. A student can also see their fee status and their timetable."} whatToDoOnPress={() => { }} />
             </View>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -303,8 +352,13 @@ const AdmLogin = ({ navigation }) => {
 
     const [email, setEmail] = useState('arsalan@mail.com');
     const [pass, setPass] = useState('astro&%%boy');
+    const quickLogin = () => {
+        setEmail('admin@gmail.com');
+        setPass('123456789');
+        console.log("Values were automatically filled in using quick-login.");
+    }
 
-    useEffect(() => {
+    useEffect(() => {   // this one checks the auth state and navigates to the home page of the admin
         const unsub = auth().onAuthStateChanged(
             user => {
                 if (user) {
@@ -326,24 +380,43 @@ const AdmLogin = ({ navigation }) => {
             );
     }
 
+    const InputThing = ({ labelText, placeholder, whatToDoOnPress }) => {
+        return (
+            <View style={styleSheet.inpBox}>
+                <Text style={{ color: 'black', paddingLeft: 20 }}>{labelText}</Text>
+                <TextInput placeholder={placeholder} style={styleSheet.inp} onChangeText={whatToDoOnPress} />
+            </View>
+        )
+    }
 
     return (
-        <View>
-            <View style={styleSheet.inpBox}>
-                <Text style={{ color: 'black', paddingLeft: 20 }}>Email</Text>
-                <TextInput placeholder="Email address" style={styleSheet.inp} onChangeText={(newEmail) => { return setEmail(newEmail) }} />
+        <View style={{ backgroundColor: 'lightgray', height: '100%' }}>
+            <View style={{ backgroundColor: 'white', borderRadius: 20, margin: 20, padding: 20 }}>
+                <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 20 }}>
+                    <Text style={{ fontSize: 20, color: '#03045E', fontWeight: 'bold' }}>Enter your credentials</Text>
+                </View>
+                <InputThing labelText={"Email"} placeholder={"Email address"} whatToDoOnPress={(newEmail) => { return setEmail(newEmail) }} />
+                <InputThing labelText={"Password"} placeholder={"Password"} whatToDoOnPress={(newP) => { return setPass(newP) }} />
+                <View style={{ alignSelf: 'center', padding: 20 }}>
+                    {/* <Button title="Sign In" onPress={handleLogin} />
+                     */}
+                    <TouchableOpacity onPress={handleLogin} style={{ backgroundColor: '#0077b6', paddingHorizontal: 20, paddingVertical: 15, borderRadius: 20 }}>
+                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
+                            Sign In
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View>
+                    {/* <Text style={{ color: 'black' }}>Email is admin@gmail.com and Pass is 123456789</Text>
+                 */}
+                    <TouchableOpacity onPress={quickLogin} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'red' }}>
+                        <Text style={{ fontSize: 40 }}>
+                            .
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <View style={styleSheet.inpBox}>
-                <Text style={{ color: 'black', paddingLeft: 20 }}>Password</Text>
-                <TextInput placeholder="Password" style={styleSheet.inp} onChangeText={(newP) => { return setPass(newP) }} />
-            </View >
-            <View style={{ width: 80, height: 40, alignSelf: 'flex-end', paddingRight: 13 }}>
-                <Button title="Sign In" onPress={handleLogin} />
-            </View>
-            <View>
-                <Text style={{ color: 'black' }}>Email is admin@gmail.com and Pass is 123456789</Text>
-            </View>
-        </View>
+        </View >
     )
 }
 
@@ -360,6 +433,7 @@ const App = () => {
                 <Stack.Screen name="Add Data" component={AddDataScreen} />
                 <Stack.Screen name="Update Data" component={UpdateDataScreen} />
                 <Stack.Screen name="Change" component={ChangeScreen} />
+                <Stack.Screen name="Manage Timetable" component={ManageTimetable} />
             </Stack.Navigator>
         </NavigationContainer>
     );
@@ -368,15 +442,17 @@ const App = () => {
 const styleSheet = StyleSheet.create({
     inpBox: {
         justifyContent: 'space-between',
+        alignItems: 'center',
         flexDirection: 'row',
-        padding: 10,
-        backgroundColor: 'whitesmoke',
+        padding: 5,
+        // backgroundColor: 'gray',
+        margin: 5
     },
     inp: {
-        height: 23,
+        height: 40,
         width: 200,
         borderRadius: 50,
-        padding: 3,
+        padding: 10,
         backgroundColor: 'lightgray',
         color: 'black'
     },
