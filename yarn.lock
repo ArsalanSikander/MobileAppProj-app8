@@ -1695,7 +1695,7 @@
   dependencies:
     invariant "^2.2.4"
 
-"@react-native-firebase/app@^20.0.0":
+"@react-native-firebase/app@20.0.0":
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-20.0.0.tgz#0aae0fdaaa0db48f6b248fb410e18687e285f2e1"
   integrity sha512-h9Xgmj0Z0ga1ponhDnQ63yqkX288LOW+ZvstDWHDo2rgPu58nbAmdzs73MTmPjYdgm5Elm71puG1NRJX5n7wRw==
@@ -1703,14 +1703,19 @@
     opencollective-postinstall "^2.0.3"
     superstruct "^0.6.2"
 
-"@react-native-firebase/auth@^20.0.0":
+"@react-native-firebase/auth@20.0.0":
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/auth/-/auth-20.0.0.tgz#104f0a692153f4d0cd9c0c42854d7bf1521bd271"
   integrity sha512-/3cjoSjF6U27orj0qPxrqHs1/CNvEBjIK2Kv01aBNSKhGlxxMBXq4Dctolnx6hYuDA83td8SmTtFZM6C17G3Ug==
   dependencies:
     plist "^3.1.0"
 
-"@react-native-firebase/firestore@^20.0.0":
+"@react-native-firebase/database@^20.0.0":
+  version "20.0.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/database/-/database-20.0.0.tgz#04393f5944e86640be32d397dc1cfb1246855a5b"
+  integrity sha512-ryOi+3C5oRTXTIcG1wichYhmSUZIItgCf7Mz8a+jyRHOT5XKohH3efOFGhn0bXwI37lywLzVaRmHG96WUJgytA==
+
+"@react-native-firebase/firestore@20.0.0":
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/firestore/-/firestore-20.0.0.tgz#2c5f3949af2110d9a53434182542fdb49b3e50fa"
   integrity sha512-fn/0nYQPrq+Las8r4SkxKZ1fLcoAIpFqRA/ARIPW0F8C7IMpI0LugW6kpd+P6aVyT4I1mzLS+wr8n+02bifzVw==

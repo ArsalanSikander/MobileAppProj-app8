@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
 import { utils } from '@react-native-firebase/app';
-// import storage from '@react-native-firebase/storage';
 import firestore, { setDoc } from '@react-native-firebase/firestore';
 import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ScrollView, Modal, StatusBar, Image } from 'react-native';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { launchImageLibrary as _launchImageLibrary } from 'react-native-image-picker';
+import DateTimePickerAndroid from '@react-native-community/datetimepicker';
+import { DateTimePicker } from '@react-native-community/datetimepicker';
 let launchImageLibrary = _launchImageLibrary;
+
+// TO DO
+// ---> Make the student add thingy
+// ---> and the fee structure thing
+// ---> we can make the Cloud Storage and 
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +40,7 @@ const ManageTimetable = () => {
             } else {
                 let imageUri = response.uri || response.assets?.[0]?.uri;
                 setSelectedImage(imageUri);
-                console.log("Something happened: ", selectedImage);
+                console.log("Something happened: ", imageUri);
             }
         });
     };
@@ -76,8 +84,8 @@ const HomeScreen = ({ navigation }) => {
     }
 
     return (
-        <View style={{ backgroundColor: 'lightgray' }}>
-            <View style={{ margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20 }}>
+        <ScrollView style={{ backgroundColor: 'lightgray' }}>
+            <View style={{ margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ fontSize: 20, color: 'black' }}>What would you like to do?</Text>
                 <OptionBtns textInside={"Create a Student Account"} whatToDoOnPress={() => navigation.navigate('Add Student')} />
                 <OptionBtns textInside={"Manage Students"} whatToDoOnPress={() => navigation.navigate('Update Data')} />
@@ -87,7 +95,7 @@ const HomeScreen = ({ navigation }) => {
                 <OptionBtns textInside={"Manage Syllabus"} whatToDoOnPress={() => { }} />
                 <OptionBtns textInside={"Logout"} whatToDoOnPress={signOut} />
             </View>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -121,20 +129,53 @@ const Logins = ({ navigation }) => {
 
 const AddStdScreen = ({ navigation }) => {
 
-    const [theDate, setTheDate] = useState(new Date());
+    // the users data is shown here
+    const [dispDate, setDispDate] = useState('none');
+    const [regno, setRegno] = useState('');
+    const [regDate, setRegDate] = useState('none');
+    const [stuName, setStuName] = useState('');
+
+
+    const handleDateChange = (event, date) => { //gets the set date event
+        setShowDate(false);
+        console.log("This is the date we get directly : ", date);
+        //lets first save the date in milliseconds
+        let gotDate = new Date(Date.parse(date)); // this doesnt do anything
+        setRegDate(gotDate);
+        setDispDate(gotDate.toDateString());
+    }
+
+    const [showDate, setShowDate] = useState(false);
 
     const InputPlace = ({ labelText, phForTi, texVis = true, datePicVis = false, pickerVis = false }) => {
         return (
-            <View style={{ flexDirection: 'row', alignItems: 'center', borderBottomColor: 'gray', borderBottomWidth: 1, marginLeft: 20, marginRight: 20, marginTop: 5 }}>
-                <Text style={{ paddingRight: 10 }}>{labelText}</Text>
-                {texVis && <TextInput placeholder={phForTi} />}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginLeft: 20, marginRight: 20, marginTop: 5, margin: 5 }}>
+                <Text style={{ paddingRight: 10, color: '#03045E' }}>{labelText}</Text>
+                {texVis && <TextInput placeholder={phForTi} style={{ borderWidth: 1, borderColor: 'gray', borderRadius: 20, color: '#0077B6', width: 200, height: 40, margin: 0, paddingLeft: 20 }} />}
+                {datePicVis &&
+                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginRight: 30, borderWidth: 1, borderRadius: 20, borderColor: 'lightgray', padding: 20 }}>
+                        <TouchableOpacity style={{ backgroundColor: 'lightblue', borderRadius: 10, padding: 10 }} onPress={() => { setShowDate(true) }}>
+                            <Text>Select Date</Text>
+                        </TouchableOpacity>
+                        <Text>{dispDate}</Text>
+                        {showDate && <DateTimePickerAndroid mode={'date'} onChange={handleDateChange} value={new Date()} />}
+                    </View>
+
+                }
             </View>
         )
     }
 
+
+    const [stuGen, setStuGen] = useState('');
+    const [stuFName, setStuFName] = useState('');
+    const [stuCaste, setStuCaste] = useState('');
+
+
     return (
-        <ScrollView >
-            <View style={{ backgroundColor: "pink", margin: 5, paddingBottom: 30 }}>
+        <ScrollView style={{ backgroundColor: 'lightgray' }} >
+            <View style={{ justifyContent: 'center', backgroundColor: "white", margin: 5, padding: 10, paddingVertical: 20, borderRadius: 40, margin: 7 }}>
+                <Text style={{ alignSelf: 'center', color: 'black', fontSize: 20, fontWeight: 'bold', margin: 10 }}>Enter values for New Student</Text>
                 <InputPlace labelText='Registration No.' phForTi="eg. FA/SP00-BCS-000" />
                 <InputPlace labelText={"Registration Date"} texVis={false} datePicVis={true} />
                 <InputPlace labelText={"Name"} phForTi={"student's name"} />
@@ -206,7 +247,10 @@ const UpdateDataScreen = ({ navigation }) => {
 
     const route = useRoute();
     const [data, setData] = useState('');
+
+
     const ref = firestore().collection('exampleCollection');
+
     const [docArr, setDocArr] = useState([]);
     useEffect(() => {
         getAllDocs();
@@ -350,8 +394,8 @@ const AddDataScreen = ({ navigation }) => {
 
 const AdmLogin = ({ navigation }) => {
 
-    const [email, setEmail] = useState('arsalan@mail.com');
-    const [pass, setPass] = useState('astro&%%boy');
+    const [email, setEmail] = useState('admin@gmail.com');
+    const [pass, setPass] = useState('123456789');
     const quickLogin = () => {
         setEmail('admin@gmail.com');
         setPass('123456789');
@@ -369,6 +413,9 @@ const AdmLogin = ({ navigation }) => {
     });
 
     function handleLogin() {
+
+
+
         auth().signInWithEmailAndPassword(email, pass).then((userCredentials) => {
             const user = userCredentials.user;
             console.log("Registered with: ", user.email);
@@ -380,11 +427,11 @@ const AdmLogin = ({ navigation }) => {
             );
     }
 
-    const InputThing = ({ labelText, placeholder, whatToDoOnPress }) => {
+    const InputThing = ({ labelText, placeholder, whatToDoOnPress, val }) => {
         return (
             <View style={styleSheet.inpBox}>
                 <Text style={{ color: 'black', paddingLeft: 20 }}>{labelText}</Text>
-                <TextInput placeholder={placeholder} style={styleSheet.inp} onChangeText={whatToDoOnPress} />
+                <TextInput placeholder={placeholder} style={styleSheet.inp} onChangeText={whatToDoOnPress} value={val} />
             </View>
         )
     }
@@ -395,11 +442,9 @@ const AdmLogin = ({ navigation }) => {
                 <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 20 }}>
                     <Text style={{ fontSize: 20, color: '#03045E', fontWeight: 'bold' }}>Enter your credentials</Text>
                 </View>
-                <InputThing labelText={"Email"} placeholder={"Email address"} whatToDoOnPress={(newEmail) => { return setEmail(newEmail) }} />
-                <InputThing labelText={"Password"} placeholder={"Password"} whatToDoOnPress={(newP) => { return setPass(newP) }} />
+                <InputThing labelText={"Email"} placeholder={"Email address"} whatToDoOnPress={setEmail} val={email} />
+                <InputThing labelText={"Password"} placeholder={"Password"} whatToDoOnPress={setPass} val={pass} />
                 <View style={{ alignSelf: 'center', padding: 20 }}>
-                    {/* <Button title="Sign In" onPress={handleLogin} />
-                     */}
                     <TouchableOpacity onPress={handleLogin} style={{ backgroundColor: '#0077b6', paddingHorizontal: 20, paddingVertical: 15, borderRadius: 20 }}>
                         <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
                             Sign In
@@ -407,14 +452,13 @@ const AdmLogin = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
                 <View>
-                    {/* <Text style={{ color: 'black' }}>Email is admin@gmail.com and Pass is 123456789</Text>
-                 */}
                     <TouchableOpacity onPress={quickLogin} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'red' }}>
                         <Text style={{ fontSize: 40 }}>
                             .
                         </Text>
                     </TouchableOpacity>
                 </View>
+                <Text>{email} and {pass}</Text>
             </View>
         </View >
     )
