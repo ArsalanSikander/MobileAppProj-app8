@@ -8,15 +8,59 @@ import { launchImageLibrary as _launchImageLibrary } from 'react-native-image-pi
 import DateTimePickerAndroid from '@react-native-community/datetimepicker';
 let launchImageLibrary = _launchImageLibrary;
 
-// TO DO 
-// ---> and the fee structure thing
-//subtasks enter name to get student if exists, if does get info so we can update/delete
-// can be done in 1 screen
-
 
 
 const Stack = createNativeStackNavigator();
 
+const ManageSyllabus = () => {
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const openImagePicker = () => {
+        const options = {
+            mediaType: 'photo',
+            includeBase64: false,
+            maxHeight: 5000,
+            maxWidth: 5000,
+        };
+
+        launchImageLibrary(options, (response) => {
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('Image picker error: ', response.error);
+            } else {
+                let imageUri = response.uri || response.assets?.[0]?.uri;
+                setSelectedImage(imageUri);
+                console.log("Something happened: ", imageUri);
+            }
+        });
+    };
+
+    return (
+        <View style={{ backgroundColor: 'lightgray', width: '100%', height: '100%', }}>
+            <View style={{ backgroundColor: 'white', padding: 30, borderRadius: 20, margin: 20 }}>
+                <TouchableOpacity onPress={openImagePicker}>
+                    <Text style={{ color: 'black' }}>
+                        Upload a Syllabus for a Class
+                    </Text>
+                </TouchableOpacity>
+            </View>
+            <View style={{ backgroundColor: 'lightgray' }}>
+                {selectedImage && (
+                    <View style={{ borderWidth: 1, borderRadius: 30, padding: 30, margin: 50, overflow: 'hidden' }}>
+                        <Image
+                            source={{ uri: selectedImage }}
+                            style={{ height: 300, width: 400 }}
+                            resizeMode='center'
+                        />
+                    </View>
+
+                )}
+            </View>
+        </View>
+    )
+
+}
 
 const ManageTimetable = () => {
 
@@ -94,10 +138,77 @@ const HomeScreen = ({ navigation }) => {
                 <OptionBtns textInside={"View Reports"} whatToDoOnPress={() => { }} />
                 <OptionBtns textInside={"Download Reports"} whatToDoOnPress={() => { }} />
                 <OptionBtns textInside={"Manage Timetable"} whatToDoOnPress={() => { navigation.navigate('Manage Timetable') }} />
-                <OptionBtns textInside={"Manage Syllabus"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"Manage Syllabus"} whatToDoOnPress={() => { navigation.navigate('Manage Syllabus') }} />
                 <OptionBtns textInside={"Logout"} whatToDoOnPress={signOut} />
             </View>
         </ScrollView>
+    )
+}
+
+const OptionBtns = ({ textInside, whatToDoOnPress }) => {
+    return (
+        <TouchableOpacity style={{ backgroundColor: '#0077b6', margin: 20, marginBottom: 0, padding: 20, borderRadius: 20, width: 300, justifyContent: 'center', alignItems: 'center' }} onPress={whatToDoOnPress}>
+            <Text style={{ color: 'white', fontSize: 20 }}>
+                {textInside}
+            </Text>
+        </TouchableOpacity>
+    )
+}
+
+const StuHome = ({ navigation }) => {
+
+    function signOut() {
+        return auth().signOut().then(() => { return navigation.navigate('Choose Login') })
+    }
+
+    return (
+        <ScrollView style={{ backgroundColor: 'lightgray' }}>
+            <View style={{ margin: 15, backgroundColor: 'white', borderRadius: 20, padding: 20, justifyContent: 'center', alignItems: 'center' }}>
+                <Text style={{ fontSize: 20, color: 'black' }}>What would you like to do?</Text>
+                <OptionBtns textInside={"View your marks"} whatToDoOnPress={() => { navigation.navigate('Marks Screen') }} />
+                <OptionBtns textInside={"Previous Academic Records"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"View Fee Status"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"View Current Syllabus"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"View Timetable"} whatToDoOnPress={() => { navigation.navigate('View Timetable') }} />
+                <OptionBtns textInside={"Log Out"} whatToDoOnPress={signOut} />
+            </View>
+        </ScrollView>
+    )
+}
+
+const Viewtimetable = () => {
+
+    const Element = ({ dayName, subName }) => {
+        return (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', margin: 20, padding: 10, borderRadius: 20, height: 70 }}>
+                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{dayName}</Text>
+                <Text>{subName}</Text>
+            </View>
+        )
+    }
+
+    return (
+        <View style={{ backgroundColor: 'lightgray', height: '100%' }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 30, margin: 20, color: 'black' }}>Timetable</Text>
+            <Element dayName={"Monday"} subName={"Maths"} />
+            <Element dayName={"Tuesday"} subName={"Science"} />
+            <Element dayName={"Wednesday"} subName={"English"} />
+            <Element dayName={"Thursday"} subName={"Social Studies"} />
+            <Element dayName={"Friday"} subName={"Arts"} />
+
+        </View>
+    )
+}
+
+const MarkScreen = () => {
+    return (
+        <ScrollView style={{ backgroundColor: 'lightgray', height: '100%' }}>
+            <View style={{ margin: 20, borderRadius: 30, padding: 10, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+                < OptionBtns textInside={"First Term Marks"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"Mid Term Marks"} whatToDoOnPress={() => { }} />
+                <OptionBtns textInside={"Final Exam Marks"} whatToDoOnPress={() => { }} />
+            </View>
+        </ScrollView >
     )
 }
 
@@ -122,8 +233,8 @@ const Logins = ({ navigation }) => {
                 <Text style={{ fontSize: 22, color: '#03045e', fontWeight: 'bold', padding: 10, paddingTop: 18, paddingBottom: 17, alignSelf: 'center' }}>Choose what user to Login as</Text>
                 <Text style={{ fontSize: 20, color: '#03045e', marginLeft: 15, paddingTop: 10, paddingBottom: 10 }} >I am a(n) ...</Text>
                 <CustomBtn textInside={"Admin"} descText={"An admin is responsible for creating  student accounts, managing their fee status, and viewing student reports!"} whatToDoOnPress={() => { return navigation.navigate('Admin Login') }} />
-                <CustomBtn textInside={"Teacher"} descText={"A teacher is responsible for managing the class assigned to them, performing activities such as uploading and updating their marks"} whatToDoOnPress={() => { }} />
-                <CustomBtn textInside={"Student"} descText={"A student is able to view the marks of their respective subjects, including their current and previous grades. A student can also see their fee status and their timetable."} whatToDoOnPress={() => { }} />
+                <CustomBtn textInside={"Teacher"} descText={"A teacher is responsible for managing the class assigned to them, performing activities such as uploading and updating their marks"} whatToDoOnPress={() => { navigation.navigate('Teacher Login') }} />
+                <CustomBtn textInside={"Student"} descText={"A student is able to view the marks of their respective subjects, including their current and previous grades. A student can also see their fee status and their timetable."} whatToDoOnPress={() => { navigation.navigate('Student Login') }} />
             </View>
         </ScrollView>
     )
@@ -613,6 +724,80 @@ const AdmLogin = ({ navigation }) => {
     )
 }
 
+const StuLogin = ({ navigation }) => {
+
+
+    const [email, setEmail] = useState('malik@786.com');
+    const [pass, setPass] = useState('123456789');
+    const quickLogin = () => {
+        setEmail('malik@786.com');
+        setPass('123456789');
+        console.log("Values were automatically filled in using quick-login.");
+    }
+
+    useEffect(() => {   // this one checks the auth state and navigates to the home page of the admin
+        const unsub = auth().onAuthStateChanged(
+            user => {
+                if (user) {
+                    navigation.replace('Student Home');
+                }
+            }
+        )
+    });
+
+    function handleLogin() {
+
+
+
+        auth().signInWithEmailAndPassword(email, pass).then((userCredentials) => {
+            const user = userCredentials.user;
+            console.log("Registered with: ", user.email);
+        })
+            .catch(
+                error => {
+                    console.log(error.message)
+                }
+            );
+    }
+
+    const InputThing = ({ labelText, placeholder, whatToDoOnPress, val }) => {
+        return (
+            <View style={styleSheet.inpBox}>
+                <Text style={{ color: 'black', paddingLeft: 20 }}>{labelText}</Text>
+                <TextInput placeholder={placeholder} style={styleSheet.inp} onChangeText={whatToDoOnPress} value={val} />
+            </View>
+        )
+    }
+
+    return (
+        <View style={{ backgroundColor: 'lightgray', height: '100%' }}>
+            <View style={{ backgroundColor: 'white', borderRadius: 20, margin: 20, padding: 20 }}>
+                <View style={{ justifyContent: 'center', alignItems: 'center', paddingVertical: 20 }}>
+                    <Text style={{ fontSize: 20, color: '#03045E', fontWeight: 'bold' }}>Enter your credentials</Text>
+                </View>
+                <InputThing labelText={"Email"} placeholder={"Email address"} whatToDoOnPress={setEmail} val={email} />
+                <InputThing labelText={"Password"} placeholder={"Password"} whatToDoOnPress={setPass} val={pass} />
+                <View style={{ alignSelf: 'center', padding: 20 }}>
+                    <TouchableOpacity onPress={handleLogin} style={{ backgroundColor: '#0077b6', paddingHorizontal: 20, paddingVertical: 15, borderRadius: 20 }}>
+                        <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
+                            Sign In
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <View>
+                    <TouchableOpacity onPress={quickLogin} style={{ justifyContent: 'center', alignItems: 'center', backgroundColor: 'inherit' }}>
+                        <Text style={{ fontSize: 40 }}>
+                            .
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+                <Text>{email} and {pass}</Text>
+            </View>
+        </View >
+    )
+
+}
+
 const DataScreen = () => {
 
     let ref = firestore().collection('students');
@@ -826,12 +1011,21 @@ const App = () => {
                 <Stack.Screen name="Data" component={DataScreen} />
                 <Stack.Screen name='Choose Login' component={Logins} options={{ headerTitle: 'School Management App' }} />
                 <Stack.Screen name='Admin Login' component={AdmLogin} />
-                <Stack.Screen name="Home" component={HomeScreen} options={{ headerTitle: 'Welcome to Admin Homepage!' }} />
+                <Stack.Screen name="Student Login" component={StuLogin} />
+                <Stack.Screen name="Teacher Login" component={LoginScreen} />
+                <Stack.Screen name="Home" component={HomeScreen} options={{ headerTitle: 'Welcome to Admin Homepage!', headerBackVisible: false, gestureEnabled: false }} />
+                <Stack.Screen name="Student Home" component={StuHome} />
+                <Stack.Screen name='Teacher Home' component={DashboardScreen} />
+                <Stack.Screen name='Teacher Marks Screen' component={ViewMarksScreen} />
+                <Stack.Screen name="Marks Screen" component={MarkScreen} />
                 <Stack.Screen name='Add Student' component={AddStdScreen} />
                 <Stack.Screen name="Add Data" component={AddDataScreen} />
                 <Stack.Screen name="Update Data" component={UpdateDataScreen} />
                 <Stack.Screen name="Change" component={ChangeScreen} />
                 <Stack.Screen name="Manage Timetable" component={ManageTimetable} />
+                <Stack.Screen name='Manage Syllabus' component={ManageSyllabus} />
+                <Stack.Screen name='View Timetable' component={Viewtimetable} />
+
             </Stack.Navigator>
         </NavigationContainer>
     );
@@ -875,6 +1069,145 @@ const styleSheet = StyleSheet.create({
     }
 
 })
+
+
+const DashboardScreen = ({ navigation }) => {
+    const tableData = [
+        { reg_no: 'FA21-BCS-031', name: 'John Doe' },
+        { reg_no: 'FA21-BCS-031', name: 'Jane Smith' },
+        { reg_no: 'FA21-BCS-031', name: 'Sam Johnson' },
+        { reg_no: 'FA21-BCS-031', name: 'Chris Lee' }
+    ];
+
+    return (
+        <ScrollView style={styles.container}>
+            <View style={styles.row}>
+                <Text style={[styles.cell, styles.header]}>Registration No.</Text>
+                <Text style={[styles.cell, styles.header]}>Name</Text>
+                <Text style={[styles.cell, styles.header]}>Marks</Text>
+            </View>
+            {tableData.map((item, index) => (
+                <View key={index} style={styles.row}>
+                    <Text style={styles.cell}>{item.reg_no}</Text>
+                    <Text style={styles.cell}>{item.name}</Text>
+                    <TouchableOpacity style={styles.view} onPress={() => navigation.navigate('Teacher Marks Screen')}>
+                        <Text>View Marks</Text>
+                    </TouchableOpacity>
+                </View>
+            ))}
+        </ScrollView>
+    );
+};
+
+const LoginScreen = ({ navigation }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = () => {
+        // Implement login functionality here
+        // Navigate to Dashboard on successful login
+        navigation.navigate('Teacher Home');
+    };
+
+    return (
+        <View>
+            <Text style={{ color: 'black', margin: 15 }}>Email:</Text>
+            <TextInput
+                style={{ backgroundColor: 'white', width: 300, marginLeft: 10, borderRadius: 50, color: 'black' }}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email"
+            />
+            <Text style={{ color: 'black', margin: 15 }}>Password:</Text>
+            <TextInput
+                style={{ backgroundColor: 'white', width: 300, marginLeft: 10, marginBottom: 10, borderRadius: 50, color: 'black' }}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Enter your password"
+                secureTextEntry
+            />
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                <Text style={styles.buttonText}>Login</Text>
+            </TouchableOpacity>
+        </View>
+
+    );
+};
+
+const ViewMarksScreen = () => {
+    const tableData = [
+        { subject: 'Mathematics', firstTerm: 85, midTerm: 88, finals: 90 },
+        { subject: 'Physics', firstTerm: 78, midTerm: 82, finals: 85 },
+        { subject: 'Chemistry', firstTerm: 80, midTerm: 84, finals: 88 },
+        { subject: 'Biology', firstTerm: 90, midTerm: 92, finals: 94 },
+        { subject: 'History', firstTerm: 75, midTerm: 78, finals: 80 },
+        // Add more rows as needed
+    ];
+
+    const [marks, setMarks] = useState('');
+
+    return (
+        <ScrollView style={styles.container}>
+            <View style={styles.row}>
+                <Text style={[styles.cell, styles.header]}>Subject/</Text>
+                <Text style={[styles.cell, styles.header]}>First Term</Text>
+                <Text style={[styles.cell, styles.header]}>Mid Term</Text>
+                <Text style={[styles.cell, styles.header]}>Finals</Text>
+            </View>
+            {tableData.map((item, index) => (
+                <View key={index} style={styles.row}>
+                    <Text style={styles.cell}>{item.subject}</Text>
+                    <TextInput style={styles.cell} value={index.marks} onChangeText={index.setMarks} />
+                    <TextInput style={styles.cell} value={index.marks} onChangeText={index.setMarks} />
+                    <TextInput style={styles.cell} value={index.marks} onChangeText={index.setMarks} />
+                </View>
+            ))}
+        </ScrollView>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        padding: 16,
+        backgroundColor: '#f5f5f5',
+    },
+    row: {
+        flexDirection: 'row',
+        marginBottom: 8,
+    },
+    cell: {
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#dcdcdc',
+        paddingHorizontal: 15,
+        textAlign: 'center',
+        color: 'black'
+    },
+    header: {
+        backgroundColor: '#eaeaea',
+        fontWeight: 'bold',
+        color: 'black'
+    },
+    view: {
+        backgroundColor: '#2196F3',
+        flex: 1,
+        borderWidth: 1,
+        borderColor: '#dcdcdc',
+        paddingHorizontal: 15,
+        paddingVertical: 5,
+        textAlign: 'center',
+        color: 'black'
+    },
+    button: {
+        backgroundColor: '#007BFF',
+        padding: 15,
+        borderRadius: 15,
+        alignItems: 'center',
+        width: '20%',
+        marginLeft: 15,
+        marginTop: 10
+    }
+});
 
 export default App;
 
