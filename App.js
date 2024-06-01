@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import auth from '@react-native-firebase/auth';
 import firestore, { doc } from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage'
+import { utils } from '@react-native-firebase/app';
 import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, ScrollView, StatusBar, Image, FlatList } from 'react-native';
 import { NavigationContainer, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -81,11 +83,13 @@ const ManageTimetable = () => {
                 console.log('Image picker error: ', response.error);
             } else {
                 let imageUri = response.uri || response.assets?.[0]?.uri;
-                setSelectedImage(imageUri);
+                setSelectedImage(imageUri);   // uri of the image is saved in this state hook
                 console.log("Something happened: ", imageUri);
             }
         });
     };
+
+    const reference = storage().ref('timetableWholeYear.jpg');
 
     return (
         <View style={{ backgroundColor: 'lightgray', width: '100%', height: '100%', }}>
@@ -98,12 +102,19 @@ const ManageTimetable = () => {
             </View>
             <View style={{ backgroundColor: 'lightgray' }}>
                 {selectedImage && (
-                    <View style={{ borderWidth: 1, borderRadius: 30, padding: 30, margin: 50, overflow: 'hidden' }}>
+                    <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', borderWidth: 0, borderRadius: 30, padding: 10, margin: 50, overflow: 'hidden' }}>
                         <Image
                             source={{ uri: selectedImage }}
-                            style={{ height: 300, width: 400 }}
-                            resizeMode='center'
+                            style={{ width: '100%', height: 'auto', aspectRatio: 1, borderWidth: 1, borderRadius: 20, padding: 0 }}
+                            resizeMode='contain'
                         />
+                        <View>
+                            <TouchableOpacity style={{ padding: 10, margin: 10, backgroundColor: 'lightblue', }} onPress={async () => {
+                                await reference.putFile(selectedImage).then(() => { console.log('Image was successfully stored in Firestore Cloud Storage') })
+                            }}>
+                                <Text style={{ color: 'white' }}>Upload Image</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                 )}
@@ -178,23 +189,21 @@ const StuHome = ({ navigation }) => {
 
 const Viewtimetable = () => {
 
-    const Element = ({ dayName, subName }) => {
-        return (
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', margin: 20, padding: 10, borderRadius: 20, height: 70 }}>
-                <Text style={{ fontSize: 20, fontWeight: 'bold' }}>{dayName}</Text>
-                <Text>{subName}</Text>
-            </View>
-        )
-    }
+    const [timetablee, setTimetablee] = useState(undefined);
+
+    useEffect(async () => {
+        await storage().ref('timetableWholeYear.jpg').getDownloadURL().then((url) => {
+            setTimetablee(url);
+        })
+            .catch((err) => {
+                console.log(err);
+            })
+    }, []);
 
     return (
         <View style={{ backgroundColor: 'lightgray', height: '100%' }}>
             <Text style={{ fontWeight: 'bold', fontSize: 30, margin: 20, color: 'black' }}>Timetable</Text>
-            <Element dayName={"Monday"} subName={"Maths"} />
-            <Element dayName={"Tuesday"} subName={"Science"} />
-            <Element dayName={"Wednesday"} subName={"English"} />
-            <Element dayName={"Thursday"} subName={"Social Studies"} />
-            <Element dayName={"Friday"} subName={"Arts"} />
+            <Image src={{ uri: timetablee }} />
 
         </View>
     )
@@ -1037,7 +1046,6 @@ const styleSheet = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
         padding: 5,
-        // backgroundColor: 'gray',
         margin: 5
     },
     inp: {

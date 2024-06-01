@@ -1710,7 +1710,7 @@
   dependencies:
     plist "^3.1.0"
 
-"@react-native-firebase/database@^20.0.0":
+"@react-native-firebase/database@20.0.0":
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/database/-/database-20.0.0.tgz#04393f5944e86640be32d397dc1cfb1246855a5b"
   integrity sha512-ryOi+3C5oRTXTIcG1wichYhmSUZIItgCf7Mz8a+jyRHOT5XKohH3efOFGhn0bXwI37lywLzVaRmHG96WUJgytA==
@@ -1719,6 +1719,11 @@
   version "20.0.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/firestore/-/firestore-20.0.0.tgz#2c5f3949af2110d9a53434182542fdb49b3e50fa"
   integrity sha512-fn/0nYQPrq+Las8r4SkxKZ1fLcoAIpFqRA/ARIPW0F8C7IMpI0LugW6kpd+P6aVyT4I1mzLS+wr8n+02bifzVw==
+
+"@react-native-firebase/storage@20.0.0":
+  version "20.0.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/storage/-/storage-20.0.0.tgz#a80387acaffa4d9ec12af64b80d3ccbe4e35d0c2"
+  integrity sha512-1aqkCG41Y0dSSrlyJwRKM7LHhxbUxMNaekTTJs2Tw7BhdirJfVUg4pvWqeNMpru6/ZZdby26B/mA0riI8caggA==
 
 "@react-native-picker/picker@react-native-picker/picker":
   version "2.7.6"
